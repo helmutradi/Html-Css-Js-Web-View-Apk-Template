@@ -2,15 +2,22 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Wichtig: target-densitydpi=device-dpi und force-device-scale zwingen Android dazu, nicht zu zoomen -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi">
     <title>Wortuhr - Color</title>
     <style>
         * {
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0;
+            padding: 0;
+            width: 100vw;
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -20,54 +27,57 @@
             overflow: hidden;
         }
 
-        /* Das Gehäuse der Uhr - optimiert für Hoch- und Querformat */
+        /* Das Gehäuse der Uhr - Passt sich jetzt absolut sauber an beide Richtungen an */
         .clock-case {
-            width: 90vmin;
-            height: 90vmin;
-            max-width: 90vh; /* Verhindert das Herausrutschen im Querformat */
-            max-height: 90vh;
-            background-color: #000000;
             display: grid;
             grid-template-rows: repeat(10, 1fr);
-            gap: 1%; /* Leicht verringert für stabileres Layout */
+            gap: 1vmin;
+            background-color: #000000;
         }
 
+        /* Wenn das Handy SENKRECHT gehalten wird (Breite ist kleiner als Höhe) */
+        @media (orientation: portrait) {
+            .clock-case {
+                width: 90vw;
+                height: 90vw;
+            }
+            .letter {
+                font-size: 5vw;
+            }
+        }
+
+        /* Wenn das Handy WAAGERECHT gehalten wird (Höhe ist kleiner als Breite) */
+        @media (orientation: landscape) {
+            .clock-case {
+                width: 90vh;
+                height: 90vh;
+            }
+            .letter {
+                font-size: 5vh;
+            }
+        }
 
         /* Eine Zeile im Raster */
         .row {
             display: grid;
             grid-template-columns: repeat(11, 1fr);
-            gap: 1.5%;
+            gap: 1vmin;
         }
 
-        /* Inaktive Buchstaben (dezent im Hintergrund sichtbar) */
+        /* Inaktive Buchstaben */
         .letter {
             display: flex;
             justify-content: center;
             align-items: center;
             color: #1a1a1a; /* Dunkles Anthrazit */
-            font-size: 4.8vmin;
             font-weight: 400;
             letter-spacing: 0.05em;
             transition: color 0.3s ease, text-shadow 0.3s ease;
-            user-select: none;
         }
 
-        @media (min-width: 600px) {
-            .letter {
-                font-size: 48px;
-            }
-        }
-
-        /* Aktive Buchstaben mit dem weißen Neon-Glow aus dem Bild */
+        /* Aktive Buchstaben mit dem weißen Neon-Glow */
         .letter.active {
-            color: #ffffff; /* Weiß */
             font-weight: 500;
-            text-shadow: 
-                0 0 4px #ffffff,
-                0 0 10px #ffffff,
-                0 0 20px rgba(255, 255, 255, 0.8),
-                0 0 30px rgba(255, 255, 255, 0.6);
         }
     </style>
 </head>
@@ -76,7 +86,6 @@
     <div class="clock-case" id="matrix"></div>
 
     <script>
-        // Das präzise Buchstaben-Raster aus deinem Bild
         const grid = [
             ["E","S","K","I","S","T","L","F","Ü","N","F"],
             ["Z","E","H","N","Z","W","A","N","Z","I","G"],
@@ -90,10 +99,8 @@
             ["B","S","E","C","H","S","F","M","U","H","R"]
         ];
 
-        // Bereinigung des Buchstabens in Zeile 7 für die korrekte Darstellung (VIER)
         grid[7][10] = "R"; 
 
-        // Wort-Positionen im Grid
         const words = {
             'ES':       [0, [0, 1]],
             'IST':      [0, [3, 5]],
@@ -104,25 +111,22 @@
             'NACH':     [3, [2, 5]],
             'VOR':      [3, [6, 8]],
             'HALB':     [4, [0, 3]],
-            
-            // Stunden
-            'h12':      [4, [5, 9]],  // ZWÖLF
-            'h2':       [5, [0, 3]],  // ZWEI
-            'h1_uhr':   [5, [2, 4]],  // EIN (bei "EIN UHR")
-            'h1':       [5, [2, 5]],  // EINS (bei "FÜNF NACH EINS")
-            'h7':       [5, [5, 10]], // SIEBEN
-            'h3':       [6, [1, 4]],  // DREI
-            'h5':       [6, [7, 10]], // FÜNF
-            'h11':      [7, [0, 2]],  // ELF
-            'h9':       [7, [3, 6]],  // NEUN
-            'h4':       [7, [7, 10]], // VIER
-            'h8':       [8, [1, 4]],  // ACHT
-            'h10':      [8, [5, 8]],  // ZEHN
-            'h6':       [9, [1, 5]],  // SECHS
+            'h12':      [4, [5, 9]],
+            'h2':       [5, [0, 3]],
+            'h1_uhr':   [5, [2, 4]],
+            'h1':       [5, [2, 5]],
+            'h7':       [5, [5, 10]],
+            'h3':       [6, [1, 4]],
+            'h5':       [6, [7, 10]],
+            'h11':      [7, [0, 2]],
+            'h9':       [7, [3, 6]],
+            'h4':       [7, [7, 10]],
+            'h8':       [8, [1, 4]],
+            'h10':      [8, [5, 8]],
+            'h6':       [9, [1, 5]],
             'UHR':      [9, [8, 10]]
         };
 
-        // Matrix im HTML aufbauen
         const matrixContainer = document.getElementById('matrix');
         grid.forEach((row, rIdx) => {
             const rowDiv = document.createElement('div');
@@ -137,16 +141,14 @@
             matrixContainer.appendChild(rowDiv);
         });
 
-        // Funktion für eine kräftige Zufallsfarbe (RGB)
         function getRandomColor() {
-            const r = Math.floor(Math.random() * 156) + 100; // Mindestens 100 für ausreichend Helligkeit
+            const r = Math.floor(Math.random() * 156) + 100;
             const g = Math.floor(Math.random() * 156) + 100;
             const b = Math.floor(Math.random() * 156) + 100;
             return `rgb(${r}, ${g}, ${b})`;
         }
 
         function updateClock() {
-            // Alle aktiven Klassen und Styles der vorherigen Sekunde zurücksetzen
             document.querySelectorAll('.letter').forEach(el => {
                 el.classList.remove('active');
                 el.style.color = '';
@@ -156,8 +158,6 @@
             const now = new Date();
             const hours = now.getHours();
             const minutes = now.getMinutes();
-
-            // Auf 5 Minuten runden
             const roundedMinutes = Math.floor(minutes / 5) * 5;
             
             let displayHour = hours % 12;
@@ -169,7 +169,6 @@
 
             const activeWords = ['ES', 'IST'];
 
-            // Minuten-Logik
             switch (roundedMinutes) {
                 case 0:  activeWords.push('UHR'); break;
                 case 5:  activeWords.push('mFÜNF', 'NACH'); break;
@@ -195,7 +194,6 @@
                 activeWords.push(`h${displayHour}`);
             }
 
-            // Buchstaben einzeln einfärben
             activeWords.forEach(wordKey => {
                 const coord = words[wordKey];
                 if (coord) {
@@ -207,8 +205,6 @@
                         const cell = document.getElementById(`cell-${row}-${col}`);
                         if (cell) {
                             cell.classList.add('active');
-                            
-                            // Hier passiert die Magie: Jeder Buchstabe kriegt seine EIGENE Farbe
                             const uniqueColor = getRandomColor();
                             cell.style.color = uniqueColor;
                             cell.style.textShadow = `
@@ -221,12 +217,8 @@
             });
         }
 
-        // Intervall auf 1000ms belassen für den sekündlichen Farbwechsel
         setInterval(updateClock, 1000);
         updateClock();
     </script>
-
-
-
 </body>
-</html>  
+</html>

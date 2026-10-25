@@ -20,17 +20,18 @@
             overflow: hidden;
         }
 
-        /* Das Gehäuse der Uhr */
+                /* Das Gehäuse der Uhr - optimiert für Hoch- und Querformat */
         .clock-case {
-            width: 85vmin;
-            height: 85vmin;
-            max-width: 820px;
-            max-height: 820px;
+            width: 90vmin;
+            height: 90vmin;
+            max-width: 90vh; /* Verhindert das Herausrutschen im Querformat */
+            max-height: 90vh;
             background-color: #000000;
             display: grid;
             grid-template-rows: repeat(10, 1fr);
-            gap: 1.5%;
+            gap: 1%; /* Leicht verringert für stabileres Layout */
         }
+
 
         /* Eine Zeile im Raster */
         .row {
